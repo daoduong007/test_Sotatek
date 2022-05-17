@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Collapse, Checkbox, Input } from 'antd';
+import { Button, Collapse, Input } from 'antd';
 
 import moment from 'moment';
 import { TodoItem } from './TodoItem';
@@ -14,34 +14,96 @@ interface ITodo {
   isChecked?: boolean;
 }
 
+const dataInit = {
+  task: '',
+  description: '',
+  dueDate: moment(),
+  priority: 'normal',
+  isChecked: false,
+};
+
 export const Todo = () => {
   const { Panel } = Collapse;
 
-  const [isBulkActionVisible, setIsBulkActionVisible] =
-    useState<boolean>(false);
-  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [listItemToRemove, setListItemToRemove] = useState<string[]>(
+    [],
+  );
   const [isResultNull, setIsResultNull] = useState<boolean>(false);
   const [listTodo, setListTodo] = useState<ITodo[]>([]);
   const [listTodoSearch, setListTodoSearch] = useState<ITodo[]>([]);
   const typeingTimeoutRef = React.useRef<any>(null);
 
   const handleAddTodo = (
+    lastTask?: string,
     task?: string,
     description?: string,
     dueDate?: any,
     priority?: string,
     isChecked?: boolean,
   ) => {
-    setListTodo((prev) => [
-      ...prev,
-      {
-        task: task,
-        description: description,
-        dueDate: dueDate,
-        priority: priority,
-        isChecked: false,
-      },
-    ]);
+    let arr = listTodo.filter((todo) => todo.task === lastTask);
+    let arr2: Array<ITodo> = listTodo.filter(
+      (todo) => todo.task !== lastTask,
+    );
+
+    if (arr.length === 0) {
+      //add task
+      setListTodo((prev) => [
+        ...prev,
+        {
+          task: task,
+          description: description,
+          dueDate: dueDate,
+          priority: priority,
+          isChecked: false,
+        },
+      ]);
+    } else {
+      //update task
+      setListTodo([
+        ...arr2,
+        {
+          task: task,
+          description: description,
+          dueDate: dueDate,
+          priority: priority,
+          isChecked: false,
+        },
+      ]);
+    }
+  };
+
+  const handleCheck = (value: string) => {
+    //add or remove value of list item to remove
+    let arrray = [];
+    arrray = listItemToRemove.filter((item) => item === value);
+
+    if (arrray.length > 0) {
+      setListItemToRemove((prev) =>
+        prev.filter((item) => item !== value),
+      );
+    } else {
+      setListItemToRemove((prev) => [...prev, value]);
+    }
+  };
+
+  const handleBulkRemove = () => {
+    let arr: Array<ITodo> = listTodo;
+
+    for (let i = 0; i < listItemToRemove.length; i++) {
+      arr = arr.filter((item) => item.task !== listItemToRemove[i]);
+    }
+
+    setListTodo(arr);
+    setListItemToRemove([]);
+
+    let checkboxes = document.getElementsByName('list');
+
+    console.log(checkboxes);
+  };
+
+  const handleRemoveOneTask = (task: string) => {
+    setListTodo(listTodo.filter((item) => item.task !== task));
   };
 
   //search feature use debounce
@@ -73,7 +135,11 @@ export const Todo = () => {
     <StyledTodoContainer>
       <div className='new-task'>
         <h2>New task</h2>
-        <TodoItem onclick={handleAddTodo} />
+        <TodoItem
+          onclick={handleAddTodo}
+          data={dataInit}
+          addOrUpdate='Add'
+        />
       </div>
 
       <div className='to-do'>
@@ -104,7 +170,12 @@ export const Todo = () => {
                           <p>
                             {todoItem.dueDate.format('DD/MM/YYYY')}
                           </p>
-                          <Button className='btn-remove'>
+                          <Button
+                            className='btn-remove'
+                            onClick={(e) => {
+                              alert('12');
+                            }}
+                          >
                             Remove
                           </Button>
                         </>
@@ -112,7 +183,8 @@ export const Todo = () => {
                     >
                       <TodoItem
                         onclick={handleAddTodo}
-                        update='update'
+                        data={todoItem}
+                        addOrUpdate='Update'
                       />
                     </Panel>
                   ),
@@ -133,14 +205,27 @@ export const Todo = () => {
                       }
                       extra={
                         <>
-                          <Checkbox checked={todoItem.isChecked}>
-                            {todoItem.task}
-                          </Checkbox>
-                          <p>
-                            {todoItem.dueDate.format('DD/MM/YYYY')}
-                          </p>
+                          <div>
+                            <input
+                              type='checkbox'
+                              onChange={(e) => {
+                                handleCheck(e.target.value);
+                              }}
+                              value={todoItem.task}
+                              name='list'
+                              id={todoItem.task}
+                            />
+                            <label htmlFor={todoItem.task}>
+                              {todoItem.task}
+                            </label>
+                          </div>
 
-                          <Button className='btn-remove'>
+                          <Button
+                            className='btn-remove'
+                            onClick={() => {
+                              handleRemoveOneTask(todoItem.task);
+                            }}
+                          >
                             Remove
                           </Button>
                         </>
@@ -148,7 +233,8 @@ export const Todo = () => {
                     >
                       <TodoItem
                         onclick={handleAddTodo}
-                        update='update'
+                        data={todoItem}
+                        addOrUpdate='Update'
                       />
                     </Panel>
                   ),
@@ -158,12 +244,22 @@ export const Todo = () => {
           </Collapse>
         </div>
 
-        {isBulkActionVisible ? (
+        {listItemToRemove.length > 0 ? (
           <div className='confirm-all'>
             <p>Bulk action:</p>
             <div>
-              <Button className='btn-remove-all'>Remove</Button>
-              <Button className='btn-done-all'>Done</Button>
+              <Button
+                className='btn-remove-all'
+                onClick={() => handleBulkRemove()}
+              >
+                Remove
+              </Button>
+              <Button
+                className='btn-done-all'
+                onClick={() => alert('Done')}
+              >
+                Done
+              </Button>
             </div>
           </div>
         ) : null}

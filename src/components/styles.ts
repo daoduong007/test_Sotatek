@@ -6,7 +6,7 @@ padding: 0 50px;
 
 display: flex;
 flex-direction: row;
-justify-content: space-around;
+justify-content: space-between;
 
 .new-task,
 .to-do {
@@ -26,6 +26,13 @@ justify-content: space-around;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  label {
+    margin-left: 10px;
+    :hover {
+      cursor: pointer;
+    }
+  }
 
   .ant-input {
     margin-bottom: 20px;
@@ -97,6 +104,7 @@ justify-content: space-around;
 
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
   .ant-collapse
     > .ant-collapse-item
@@ -108,4 +116,47 @@ justify-content: space-around;
     align-items: center;
   }
 }
+
+@media (max-width: 900px) {
+  padding: 0 30px;
+  .new-task {
+  width: 40%;
+  }
+  .to-do {
+    width: 55%;
+    .confirm-all {
+      .btn-done-all,
+      .btn-remove-all {
+        width: 70px;
+      }
+    }
+  }
+};
+
+@media (max-width: 820px) {
+  flex-direction: column;
+  align-items: center;
+
+  .new-task {
+  width: 60%;
+  margin-bottom: 20px;
+  }
+  .to-do {
+  width: 90%;
+
+  .btn-detail,
+  .btn-remove {
+    width: 75px;
+  }
+  }
+};
+
+@media (max-width: 480px) {
+  padding: 0 10px;
+
+  .new-task ,
+  .to-do {
+  width: 100%;
+  }
+};
 `;
