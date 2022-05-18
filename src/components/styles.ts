@@ -27,6 +27,12 @@ justify-content: space-between;
   flex-direction: column;
   justify-content: space-between;
 
+  .to-do-checkbox {
+    :hover {
+      cursor: pointer;
+    }
+  }
+
   label {
     margin-left: 10px;
     :hover {

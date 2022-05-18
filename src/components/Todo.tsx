@@ -167,13 +167,26 @@ export const Todo = () => {
                       }
                       extra={
                         <>
-                          <p>
-                            {todoItem.dueDate.format('DD/MM/YYYY')}
-                          </p>
+                          <div>
+                            <input
+                              className='to-do-checkbox'
+                              type='checkbox'
+                              onChange={(e) => {
+                                handleCheck(e.target.value);
+                              }}
+                              value={todoItem.task}
+                              name='list'
+                              id={todoItem.task}
+                            />
+                            <label htmlFor={todoItem.task}>
+                              {todoItem.task}
+                            </label>
+                          </div>
+
                           <Button
                             className='btn-remove'
-                            onClick={(e) => {
-                              alert('12');
+                            onClick={() => {
+                              handleRemoveOneTask(todoItem.task);
                             }}
                           >
                             Remove
@@ -207,6 +220,7 @@ export const Todo = () => {
                         <>
                           <div>
                             <input
+                              className='to-do-checkbox'
                               type='checkbox'
                               onChange={(e) => {
                                 handleCheck(e.target.value);
